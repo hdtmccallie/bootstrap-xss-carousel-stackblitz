@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Home</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.staticfile.net/twitter-bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://cdn.staticfile.net/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
+
+    <script src="bootstrap.js"></script>
+
+    <!--
+      Need a visual blank slate?
+      Remove all code in `styles.css`!
+    -->
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="script.js"></script>
+  </head>
+  <body>
+    <nav>
+      <a href="index.html">Original</a>
+      <a href="fixed.html">Patched</a>
+    </nav>
+    <main>
+      <h1>Boostrap 3.4.1 XSS Button Component Patched</h1>
+
+      <h2>XSS Attempts</h2>
+
+      <p>
+        <button
+          class="btn btn-xss btn-primary"
+          data-loading-text="<script>alert('XSS Success')</script>"
+          type="button"
+        >
+          Load XSS Alert
+        </button>
+      </p>
+
+      <p>
+        <button
+          class="btn btn-xss btn-primary"
+          data-loading-text='<<script>alert("XSS");//<</script>'
+          type="button"
+        >
+          Load XSS malformed tag
+        </button>
+      </p>
+
+      <p>
+        <!-- prettier-ignore -->
+        <button
+          class="btn btn-xss btn-primary"
+          data-loading-text='<a href="javascript:alert(&apos;XSS&apos;)" color="red">Click me</a>'
+          type="button"
+        >
+          Load XSS href attribute
+        </button>
+      </p>
+
+      <p>
+        <button
+          type="button"
+          class="btn btn-primary btn-xss"
+          data-loading-text="<img src='x' onerror='alert(&quot;XSS&quot;)'>"
+        >
+          Loading with XSS image (onError)
+        </button>
+      </p>
+
+      <p>
+        <button
+          type="button"
+          class="btn btn-primary btn-xss"
+          data-loading-text="<div onmouseover='alert(&quot;XSS&quot;)'>Hover over me</div>"
+        >
+          Loading with XSS onmouseover
+        </button>
+      </p>
+
+      <p>
+        <button
+          class="btn btn-primary string-test"
+          data-herodevs-text="<script>alert('XSS Success')</script>"
+          type="button"
+        >
+          Button(string) XSS method
+        </button>
+      </p>
+
+      <p>
+        <label for="firstName">Your name</label>
+        <input
+          id="firstName"
+          type="text"
+          value="<script>alert('XSS Input Success')</script>"
+        />
+        <button
+          class="btn btn-primary input-test"
+          data-loading-text="loading text here"
+          type="button"
+        >
+          Input XSS
+        </button>
+      </p>
+
+      <hr />
+
+      <h2>Valid HTML</h2>
+      <p>
+        <button
+          type="button"
+          class="btn btn-primary btn-xss"
+          data-loading-text="<img height='30' src='https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif' alt='Loading...' /> <strong>Loading...</strong>"
+        >
+          Loading with valid image
+        </button>
+      </p>
+
+      <p>
+        <button
+          class="btn btn-primary btn-xss"
+          data-loading-text="<span class='glyphicon glyphicon-refresh'></span> Loading..."
+        >
+          Loading with valid icon
+        </button>
+      </p>
+    </main>
+  </body>
+</html>
