@@ -109,6 +109,7 @@ if (typeof jQuery === 'undefined') {
   Alert.TRANSITION_DURATION = 150;
 
   Alert.prototype.close = function (e) {
+    console.log(`[TREY] alert close`);
     var $this = $(this);
     var selector = $this.attr('data-target');
 

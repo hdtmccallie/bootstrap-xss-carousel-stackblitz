@@ -45,6 +45,24 @@ h1 {
   font-size: 3rem;
 }
 
-a {
-  color: red;
+.carousel-container {
+ width: 250px;
+}
+
+.carousel {
+  width: 250px;
+}
+
+.right {
+  float: right;
+}
+
+h3 code {
+  background-color: #f5f5f5;
+  border: 1px solid #e1e1e1;
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1.5rem;
+  color: #c7254e;
 }

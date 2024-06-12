@@ -1,7 +1,7 @@
 /*!
- * Bootstrap v3.4.1 (https://getbootstrap.com/)
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under the MIT license
+ * Bootstrap NES v3.4.2 (https://herodevs.com/)
+ * Copyright 2023-2024 HeroDevs, Inc
+ * Licensed under the HeroDevs NES License license
  */
 
 if (typeof jQuery === 'undefined') {
@@ -26,8 +26,8 @@ if (typeof jQuery === 'undefined') {
  * Bootstrap: transition.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#transitions
  * ========================================================================
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Copyright 2023-2024 HeroDevs, Inc
+ * Licensed under HeroDevs NES License
  * ======================================================================== */
 
 +(function ($) {
@@ -89,8 +89,8 @@ if (typeof jQuery === 'undefined') {
  * Bootstrap: alert.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#alerts
  * ========================================================================
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Copyright 2023-2024 HeroDevs, Inc
+ * Licensed under HeroDevs NES License
  * ======================================================================== */
 
 +(function ($) {
@@ -112,9 +112,20 @@ if (typeof jQuery === 'undefined') {
     var $this = $(this);
     var selector = $this.attr('data-target');
 
+    // NES Sanitize Attribute (no ReDoS)
+    var sanitizeAttribute = function (selector) {
+      var lastHashIndex = selector.lastIndexOf('#');
+
+      if (lastHashIndex !== -1 && selector[lastHashIndex + 1] !== ' ') {
+        return selector.slice(lastHashIndex);
+      }
+
+      return selector;
+    };
+
     if (!selector) {
       selector = $this.attr('href');
-      selector = selector && selector.replace(/.*(?=#[^\s]*$)/, ''); // strip for ie7
+      selector = selector && sanitizeAttribute(selector);
     }
 
     selector = selector === '#' ? [] : selector;
@@ -180,8 +191,8 @@ if (typeof jQuery === 'undefined') {
  * Bootstrap: button.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#buttons
  * ========================================================================
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Copyright 2023-2024 HeroDevs, Inc
+ * Licensed under HeroDevs NES License
  * ======================================================================== */
 
 +(function ($) {
@@ -208,6 +219,27 @@ if (typeof jQuery === 'undefined') {
     var val = $el.is('input') ? 'val' : 'html';
     var data = $el.data();
 
+    // Set initial warning status
+    var purifyWarningShown = false;
+
+    // NES Sanitization via DOMPurify
+    var sanitize = function (data) {
+      if (
+        (typeof DOMPurify === 'undefined' || !DOMPurify) &&
+        !purifyWarningShown
+      ) {
+        console.warn(
+          'Could not locate DOMPurify to sanitize keys. See ' +
+            'https://github.com/angular-translate/angular-translate/issues/1418 ' +
+            'for more information. This warning will only show once.'
+        );
+        // prevent multiple warnings
+        purifyWarningShown = true;
+      }
+
+      return typeof DOMPurify === 'undefined' ? data : DOMPurify.sanitize(data);
+    };
+
     state += 'Text';
 
     if (data.resetText == null) $el.data('resetText', $el[val]());
@@ -215,7 +247,14 @@ if (typeof jQuery === 'undefined') {
     // push to event loop to allow forms to submit
     setTimeout(
       $.proxy(function () {
-        $el[val](data[state] == null ? this.options[state] : data[state]);
+        // $el[val](data[state] == null ? this.options[state] : data[state]);
+
+        // Use the sanitize utility function
+        var sanitizedData = $.sanitize(
+          data[state] == null ? this.options[state] : data[state]
+        );
+
+        $el[val](sanitizedData);
 
         if (state == 'loadingText') {
           this.isLoading = true;
@@ -311,8 +350,8 @@ if (typeof jQuery === 'undefined') {
  * Bootstrap: carousel.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#carousel
  * ========================================================================
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Copyright 2023-2024 HeroDevs, Inc
+ * Licensed under HeroDevs NES License
  * ======================================================================== */
 
 +(function ($) {
@@ -537,17 +576,41 @@ if (typeof jQuery === 'undefined') {
     return this;
   };
 
+  // NES Sanitize Attribute (no ReDoS)
+  var sanitizeAttribute = function (selector) {
+    var lastHashIndex = selector.lastIndexOf('#');
+
+    if (lastHashIndex !== -1 && selector[lastHashIndex + 1] !== ' ') {
+      return selector.slice(lastHashIndex);
+    }
+
+    return selector;
+  };
+
   // CAROUSEL DATA-API
   // =================
 
   var clickHandler = function (e) {
     var $this = $(this);
     var href = $this.attr('href');
-    if (href) {
-      href = href.replace(/.*(?=#[^\s]+$)/, ''); // strip for ie7
-    }
 
     var target = $this.attr('data-target') || href;
+
+    // NES: XSS Sanitization
+    // target =
+    //   target &&
+    //   /#[A-Za-z]/.test(target) &&
+    //   target.replace(/.*(?=#[^\s]*$)/, '')
+    target = target && /#[A-Za-z]/.test(target) && sanitizeAttribute(target);
+
+    // NES: XSS Sanitization
+    if (!target) {
+      // Strip href if target not valid.
+      $this.attr('href', '#');
+      // stop
+      return;
+    }
+
     var $target = $(document).find(target);
 
     if (!$target.hasClass('carousel')) return;
@@ -581,8 +644,8 @@ if (typeof jQuery === 'undefined') {
  * Bootstrap: collapse.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#collapse
  * ========================================================================
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Copyright 2023-2024 HeroDevs, Inc
+ * Licensed under HeroDevs NES License
  * ======================================================================== */
 
 /* jshint latedef: false */
@@ -813,8 +876,8 @@ if (typeof jQuery === 'undefined') {
  * Bootstrap: dropdown.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#dropdowns
  * ========================================================================
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Copyright 2023-2024 HeroDevs, Inc
+ * Licensed under HeroDevs NES License
  * ======================================================================== */
 
 +(function ($) {
@@ -831,15 +894,25 @@ if (typeof jQuery === 'undefined') {
 
   Dropdown.VERSION = '3.4.1';
 
+  // NES Sanitize Attribute (no ReDoS)
+  var sanitizeAttribute = function (selector) {
+    var lastHashIndex = selector.lastIndexOf('#');
+
+    if (lastHashIndex !== -1 && selector[lastHashIndex + 1] !== ' ') {
+      return selector.slice(lastHashIndex);
+    }
+
+    return selector;
+  };
+
   function getParent($this) {
     var selector = $this.attr('data-target');
 
     if (!selector) {
       selector = $this.attr('href');
+      // selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
       selector =
-        selector &&
-        /#[A-Za-z]/.test(selector) &&
-        selector.replace(/.*(?=#[^\s]*$)/, ''); // strip for ie7
+        selector && /#[A-Za-z]/.test(selector) && sanitizeAttribute(selector);
     }
 
     var $parent = selector !== '#' ? $(document).find(selector) : null;
@@ -996,8 +1069,8 @@ if (typeof jQuery === 'undefined') {
  * Bootstrap: modal.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#modals
  * ========================================================================
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Copyright 2023-2024 HeroDevs, Inc
+ * Licensed under HeroDevs NES License
  * ======================================================================== */
 
 +(function ($) {
@@ -1393,8 +1466,8 @@ if (typeof jQuery === 'undefined') {
  * https://getbootstrap.com/docs/3.4/javascript/#tooltip
  * Inspired by the original jQuery.tipsy by Jason Frame
  * ========================================================================
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Copyright 2023-2024 HeroDevs, Inc
+ * Licensed under HeroDevs NES License
  * ======================================================================== */
 
 +(function ($) {
@@ -2216,8 +2289,8 @@ if (typeof jQuery === 'undefined') {
  * Bootstrap: popover.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#popovers
  * ========================================================================
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Copyright 2023-2024 HeroDevs, Inc
+ * Licensed under HeroDevs NES License
  * ======================================================================== */
 
 +(function ($) {
@@ -2339,8 +2412,8 @@ if (typeof jQuery === 'undefined') {
  * Bootstrap: scrollspy.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#scrollspy
  * ========================================================================
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Copyright 2023-2024 HeroDevs, Inc
+ * Licensed under HeroDevs NES License
  * ======================================================================== */
 
 +(function ($) {
@@ -2525,8 +2598,8 @@ if (typeof jQuery === 'undefined') {
  * Bootstrap: tab.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#tabs
  * ========================================================================
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Copyright 2023-2024 HeroDevs, Inc
+ * Licensed under HeroDevs NES License
  * ======================================================================== */
 
 +(function ($) {
@@ -2550,9 +2623,21 @@ if (typeof jQuery === 'undefined') {
     var $ul = $this.closest('ul:not(.dropdown-menu)');
     var selector = $this.data('target');
 
+    // NES Sanitize Attribute (no ReDoS)
+    var sanitizeAttribute = function (selector) {
+      var lastHashIndex = selector.lastIndexOf('#');
+
+      if (lastHashIndex !== -1 && selector[lastHashIndex + 1] !== ' ') {
+        return selector.slice(lastHashIndex);
+      }
+
+      return selector;
+    };
+
     if (!selector) {
       selector = $this.attr('href');
-      selector = selector && selector.replace(/.*(?=#[^\s]*$)/, ''); // strip for ie7
+      // selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
+      selector = selector && sanitizeAttribute(selector);
     }
 
     if ($this.parent('li').hasClass('active')) return;
@@ -2679,8 +2764,8 @@ if (typeof jQuery === 'undefined') {
  * Bootstrap: affix.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#affix
  * ========================================================================
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Copyright 2023-2024 HeroDevs, Inc
+ * Licensed under HeroDevs NES License
  * ======================================================================== */
 
 +(function ($) {
